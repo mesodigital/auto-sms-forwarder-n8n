@@ -1,0 +1,20 @@
+[Unit]
+Description=SMS Monitor ADB Gateway
+# Memastikan layanan hanya jalan setelah sistem jaringan siap
+After=network.target
+
+[Service]
+Type=simple
+User=root
+# Path lengkap ke skrip Anda
+ExecStart=/bin/bash /root/n8n-myopenwrt/auto-messager-v1.0/sms-checker.sh
+# FITUR UTAMA: Otomatis restart jika skrip mati atau kabel terputus
+Restart=always
+# Jeda 10 detik sebelum mencoba menyambungkan kembali
+RestartSec=10s
+# Mencatat output ke log sistem agar mudah di-debug
+StandardOutput=append:/var/log/sms-monitor.log
+StandardError=append:/var/log/sms-monitor.log
+
+[Install]
+WantedBy=multi-user.target
