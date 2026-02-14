@@ -1,0 +1,100 @@
+{
+  "name": "AutoMessager_V1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sms-otomatis",
+        "options": {
+          "responseCode": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        -112
+      ],
+      "id": "8e32a1f0-23cd-49c7-b46c-4d835331f186",
+      "name": "Webhook",
+      "webhookId": "98661b81-7fbd-477e-af03-67a59c536792"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mengambil string dari node Webhook\nconst rawData = items[0].json.body.raw_data;\n\n// Fungsi untuk mengekstrak data menggunakan Regex\nconst extract = (key) => {\n  const match = rawData.match(new RegExp(`${key}=([^,]+|.*$)`));\n  return match ? match[1].trim() : null;\n};\n\nconst address = extract('address');\nconst body = extract('body');\nconst timestamp = parseInt(extract('date'));\n\n// Mengonversi timestamp ke format waktu Indonesia yang mudah dibaca\nconst dateTime = new Date(timestamp).toLocaleString('id-ID', {\n  timeZone: 'Asia/Jakarta',\n  dateStyle: 'medium',\n  timeStyle: 'short'\n});\n\nreturn [\n  {\n    json: {\n      Sender: address,\n      Message: body,\n      Time: dateTime,\n      RawTimestamp: timestamp\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        -112
+      ],
+      "id": "c5e96149-7307-455f-8069-f043ba46d66e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": " ",
+        "text": "=⚠️ Ada SMS baru! 📨\n\n📫 {{ $json.Sender }} \n------------------------------\n{{ $json.Message }} \n------------------------------\n🕛 {{ $json.Time }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        -112
+      ],
+      "id": "5a752c9f-f9b8-477d-af96-444a61c610b0",
+      "name": "Send a text message",
+      "webhookId": "",
+      "credentials": {
+        "telegramApi": {
+          "id": "7jiGlEF6byEep5EL",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2f236e9c-9975-4547-8dbe-2b3df3e238e0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "652014ae8f2e62f2752050a5be81a626d5945704488eabeffecceb7a9cd500c7"
+  },
+  "id": "H3XFjpJUsqYouwnI",
+  "tags": []
+}
